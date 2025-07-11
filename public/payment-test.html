@@ -8,7 +8,7 @@
       body {
         font-family: sans-serif;
         padding: 2rem;
-        background: #f0f0f0;
+        background: #f9f9f9;
       }
       .container {
         max-width: 600px;
@@ -38,29 +38,31 @@
     </div>
 
     <script>
+      // Initialize Pi SDK
+      Pi.init({ version: "2.0", sandbox: true });
+
       async function pay() {
         try {
-          const scopes = ['username', 'payments'];
-          const authResult = await Pi.authenticate(scopes, function (result) {
-            console.log('Authenticated:', result);
+          // Authenticate user (required)
+          const scopes = ["username", "payments"];
+          const auth = await Pi.authenticate(scopes, (res) => {
+            console.log("Authenticated", res);
           });
 
+          // Call Pi payment
           const payment = await Pi.createPayment({
             amount: 0.01,
             memo: "Test payment to TektonNet",
-            metadata: { type: "test" },
+            metadata: { purpose: "test" },
           });
 
-          console.log("Payment successful:", payment);
-          alert("Payment initiated. Check your Pi Testnet Wallet.");
+          console.log("Payment created:", payment);
+          alert("Payment triggered. Check your Pi Testnet Wallet.");
         } catch (error) {
           console.error("Payment failed:", error);
           alert("Payment failed. See console for details.");
         }
       }
-
-      Pi.init({ version: "2.0", sandbox: true });
     </script>
   </body>
 </html>
-
