@@ -1,36 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8" />
-  <title>TektonNet Payment</title>
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body>
-  <h2>🔐 Pay 0.01 Pi to TektonNet</h2>
-  <button onclick="payWithPi()">Pay Now</button>
+  <head>
+    <meta charset="utf-8" />
+    <title>Payment Test - TektonNet</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+        background: #f0f0f0;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      button {
+        padding: 1rem 2rem;
+        font-size: 16px;
+        background-color: #8a3ffc;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔐 Pay 0.01 Pi to TektonNet</h1>
+      <p>Click below to simulate a transaction with your Pi Testnet wallet.</p>
+      <button onclick="pay()">Pay Now</button>
+    </div>
 
-  <script>
-    function payWithPi() {
-      window.Pi.createPayment({
-        amount: 0.01,
-        memo: "Test payment to TektonNet",
-        metadata: { purpose: "verify" },
-        to: "GBS4U...GZR3N" // 👈 Hoặc thay bằng username ví nếu có (ví dụ: tektonnetapp)
-      }, {
-        onReadyForServerApproval: (paymentId) => {
-          console.log("Ready for approval:", paymentId);
-        },
-        onReadyForServerCompletion: (paymentId, txid) => {
-          console.log("Payment complete:", txid);
-        },
-        onCancel: (reason) => {
-          console.log("Cancelled:", reason);
-        },
-        onError: (error) => {
-          console.error("Payment error:", error);
+    <script>
+      async function pay() {
+        try {
+          const payment = await window.Pi.createPayment({
+            amount: 0.01,
+            memo: "Test payment to TektonNet",
+            metadata: { test: true },
+          });
+          console.log("Payment created:", payment);
+        } catch (error) {
+          console.error("Payment failed:", error);
+          alert("Payment failed. See console for details.");
         }
+      }
+
+      // Required initialization with your App ID
+      window.Pi.init({
+        version: "2.0",
+        sandbox: true, // IMPORTANT: Make sure you are in sandbox mode for testnet
       });
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
+
