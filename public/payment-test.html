@@ -40,23 +40,26 @@
     <script>
       async function pay() {
         try {
-          const payment = await window.Pi.createPayment({
+          const scopes = ['username', 'payments'];
+          const authResult = await Pi.authenticate(scopes, function (result) {
+            console.log('Authenticated:', result);
+          });
+
+          const payment = await Pi.createPayment({
             amount: 0.01,
             memo: "Test payment to TektonNet",
-            metadata: { test: true },
+            metadata: { type: "test" },
           });
-          console.log("Payment created:", payment);
+
+          console.log("Payment successful:", payment);
+          alert("Payment initiated. Check your Pi Testnet Wallet.");
         } catch (error) {
           console.error("Payment failed:", error);
           alert("Payment failed. See console for details.");
         }
       }
 
-      // Required initialization with your App ID
-      window.Pi.init({
-        version: "2.0",
-        sandbox: true, // IMPORTANT: Make sure you are in sandbox mode for testnet
-      });
+      Pi.init({ version: "2.0", sandbox: true });
     </script>
   </body>
 </html>
