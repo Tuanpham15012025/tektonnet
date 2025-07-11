@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>TektonNet Payment</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body>
+  <h2>🔐 Pay 0.01 Pi to TektonNet</h2>
+  <button onclick="payWithPi()">Pay Now</button>
+
+  <script>
+    function payWithPi() {
+      window.Pi.createPayment({
+        amount: 0.01,
+        memo: "Test payment to TektonNet",
+        metadata: { purpose: "verify" },
+        to: "GBS4U...GZR3N" // 👈 Hoặc thay bằng username ví nếu có (ví dụ: tektonnetapp)
+      }, {
+        onReadyForServerApproval: (paymentId) => {
+          console.log("Ready for approval:", paymentId);
+        },
+        onReadyForServerCompletion: (paymentId, txid) => {
+          console.log("Payment complete:", txid);
+        },
+        onCancel: (reason) => {
+          console.log("Cancelled:", reason);
+        },
+        onError: (error) => {
+          console.error("Payment error:", error);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
