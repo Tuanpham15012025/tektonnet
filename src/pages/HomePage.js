@@ -2,33 +2,34 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function HomePage() {
-  const [user, setUser] = useState(null);
+  const [piUser, setPiUser] = useState(null);
 
-  // Auto-check login status if available
-  useEffect(() => {
+  const handlePiLogin = async () => {
     if (window?.Pi) {
-      window.Pi.init({ version: "2.0", sandbox: true });
+      try {
+        const authResult = await window.Pi.authenticate({
+          onIncompletePaymentFound: (payment) => {
+            console.warn("Incomplete payment found:", payment);
+          },
+        });
+        setPiUser(authResult.user);
+        alert(`👋 Welcome ${authResult.user.username}`);
+      } catch (error) {
+        console.error("Pi Login failed:", error);
+        alert("Login failed. Please try again.");
+      }
+    } else {
+      alert("⚠️ Please open this app in the Pi Browser.");
+    }
+  };
+
+  useEffect(() => {
+    if (window.Pi) {
+      console.log("✅ Pi SDK available");
+    } else {
+      console.warn("⚠️ Pi SDK not available");
     }
   }, []);
-
-  const handleLogin = async () => {
-    if (!window?.Pi) return alert("Pi SDK not available. Open in Pi Browser.");
-    try {
-      const scopes = ['username'];
-      const authResult = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
-      setUser(authResult.user);
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  const onIncompletePaymentFound = (payment) => {
-    console.warn("Incomplete payment found:", payment);
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6 text-gray-800 font-sans">
@@ -47,36 +48,24 @@ export default function HomePage() {
           </p>
         </section>
 
-        <section className="bg-white p-6 rounded-2xl shadow-md text-center space-y-3">
+        <section className="bg-white p-6 rounded-2xl shadow-md text-center">
           <h2 className="text-xl font-semibold">🔗 Access TektonNet</h2>
           <a
             href="https://tektonnet.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition"
+            className="mt-3 inline-block bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition"
           >
             Launch App
           </a>
-
-          {/* 👤 Pi Login Section */}
-          {user ? (
-            <div className="mt-4">
-              <p className="text-sm text-green-700">👋 Hello, @{user.username}</p>
-              <button
-                onClick={handleLogout}
-                className="mt-2 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
+          <div className="mt-4">
             <button
-              onClick={handleLogin}
-              className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+              onClick={handlePiLogin}
+              className="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition"
             >
-              Login with Pi
+              {piUser ? `👋 ${piUser.username}` : "Login with Pi"}
             </button>
-          )}
+          </div>
         </section>
 
         <section className="bg-white p-6 rounded-2xl shadow-md text-center">
