@@ -1,55 +1,54 @@
-// src/components/PiLoginPopup.jsx
 import React, { useState } from "react";
 
 export default function PiLoginPopup() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [error, setError] = useState(null);
 
   const handleLogin = async () => {
-    if (!window?.Pi) {
-      return alert("Pi SDK not loaded. Please use Pi Browser.");
+    if (!window.Pi) {
+      alert("Pi SDK is not available. Please run this in Pi Browser.");
+      return;
     }
 
     try {
       const scopes = ['username', 'payments'];
-      const authResult = await window.Pi.authenticate(scopes, (authData) => {
-        console.log('onIncompletePaymentFound', authData);
-      });
-      setUser(authResult.user);
-      setError(null);
-    } catch (err) {
-      setError(err.message || "Login failed.");
-      setUser(null);
+      const result = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
+      setUser(result.user);
+      setLoggedIn(true);
+    } catch (error) {
+      console.error("Pi Login failed", error);
     }
   };
 
   const handleLogout = () => {
+    setLoggedIn(false);
     setUser(null);
   };
 
+  const onIncompletePaymentFound = (payment) => {
+    console.log("Found incomplete payment:", payment);
+  };
+
   return (
-    <div className="text-center mt-4">
-      {!user ? (
-        <button
-          onClick={handleLogin}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-        >
-          Login with Pi
-        </button>
-      ) : (
-        <div className="flex flex-col items-center">
-          <p className="text-sm text-gray-700 mb-2">
-            Logged in as <strong>{user?.username}</strong>
-          </p>
+    <div className="mt-4">
+      {loggedIn ? (
+        <div className="text-sm text-gray-700">
+          👋 Hello, <strong>{user?.username}</strong>
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+            className="ml-4 text-red-500 underline hover:text-red-700"
           >
             Logout
           </button>
         </div>
+      ) : (
+        <button
+          onClick={handleLogin}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition"
+        >
+          Login with Pi
+        </button>
       )}
-      {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
     </div>
   );
 }
