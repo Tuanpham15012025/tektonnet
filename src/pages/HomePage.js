@@ -1,33 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import LoginPopup from "../components/LoginPopup";
 
 export default function HomePage() {
+  const [showLogin, setShowLogin] = useState(false);
   const [user, setUser] = useState(null);
 
-  const handleLogin = async () => {
-    if (!window.Pi) {
-      alert("⚠️ Pi SDK is not available. Please open in the Pi Browser.");
-      return;
-    }
-
-    try {
-      window.Pi.init({
-        version: "2.0",
-        sandbox: true, // true = chạy testnet
-      });
-
-      const scopes = ["username"];
-      const user = await window.Pi.authenticate(scopes, (payment) => {
-        console.log("Incomplete payment found:", payment);
-      });
-
-      console.log("✅ Pi Login successful:", user);
-      setUser(user);
-    } catch (error) {
-      console.error("❌ Pi Login failed:", error);
-      alert("Login failed. Please try again.");
-    }
-  };
+  const handleLogout = () => setUser(null);
+  const handleLoginSuccess = (userInfo) => setUser(userInfo);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6 text-gray-800 font-sans">
@@ -37,7 +17,6 @@ export default function HomePage() {
       </header>
 
       <main className="w-full max-w-2xl space-y-6">
-        {/* About section */}
         <section className="bg-white p-6 rounded-2xl shadow-md">
           <h2 className="text-2xl font-semibold mb-3">📌 About TektonNet</h2>
           <p>
@@ -47,7 +26,6 @@ export default function HomePage() {
           </p>
         </section>
 
-        {/* Launch & Login section */}
         <section className="bg-white p-6 rounded-2xl shadow-md text-center">
           <h2 className="text-xl font-semibold">🔗 Access TektonNet</h2>
           <a
@@ -58,22 +36,23 @@ export default function HomePage() {
           >
             Launch App
           </a>
-
-          {!user ? (
+          {user ? (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600">👤 Logged in as: {user.username}</p>
+              <button onClick={handleLogout} className="text-red-500 hover:underline text-sm mt-1">
+                Logout
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={handleLogin}
-              className="mt-4 inline-block bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition"
+              onClick={() => setShowLogin(true)}
+              className="mt-3 inline-block bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition"
             >
               Login with Pi
             </button>
-          ) : (
-            <div className="mt-3 text-sm text-green-700">
-              ✅ Logged in as: <strong>{user.username}</strong>
-            </div>
           )}
         </section>
 
-        {/* Pi Donation */}
         <section className="bg-white p-6 rounded-2xl shadow-md text-center">
           <h2 className="text-xl font-semibold">💛 Support Pi Testing/Donation</h2>
           <p className="mt-2 break-all text-sm font-mono text-gray-700">
@@ -81,7 +60,6 @@ export default function HomePage() {
           </p>
         </section>
 
-        {/* AI Chat Assistant */}
         <section className="bg-white p-6 rounded-2xl shadow-md text-center">
           <h2 className="text-xl font-semibold mb-2">💬 AI Chat Assistant</h2>
           <p className="text-gray-600 mb-3">Ask AI for construction help, documents, or advice.</p>
@@ -97,6 +75,10 @@ export default function HomePage() {
       <footer className="text-center text-xs text-gray-400 mt-10">
         &copy; 2025 TektonNet. Powered by Pi Network.
       </footer>
+
+      {showLogin && (
+        <LoginPopup onClose={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />
+      )}
     </div>
   );
 }
