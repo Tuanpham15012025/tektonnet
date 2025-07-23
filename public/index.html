@@ -13,17 +13,21 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
     <title>TektonNet – AI Construction App on Pi Network</title>
+
+    <!-- ✅ Pi SDK v2 script -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   </head>
 
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
-    <!-- Pi SDK v2 will be injected automatically in Pi Browser -->
+    <!-- Debug log để kiểm tra SDK -->
     <script>
-      console.log("Pi SDK available?", typeof window.Pi !== "undefined");
-      if (!window.Pi) {
-        console.warn("⚠️ Pi SDK not found. Make sure you open this in Pi Browser.");
+      if (typeof window.Pi !== "undefined") {
+        console.log("✅ Pi SDK loaded.");
+      } else {
+        console.warn("⚠️ Pi SDK is not available. Please open this app inside the Pi Browser.");
       }
     </script>
   </body>
