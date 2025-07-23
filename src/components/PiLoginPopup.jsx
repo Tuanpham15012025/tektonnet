@@ -1,54 +1,45 @@
 import React, { useState } from "react";
 
-export default function PiLoginPopup() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+const LoginPopup = ({ onClose, onLoginSuccess }) => {
+  const [error, setError] = useState(null);
 
   const handleLogin = async () => {
-    if (!window.Pi) {
-      alert("Pi SDK is not available. Please run this in Pi Browser.");
+    if (!window?.Pi) {
+      setError("⚠️ Pi SDK is not available. Please open in the Pi Browser.");
       return;
     }
 
     try {
-      const scopes = ['username', 'payments'];
-      const result = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
-      setUser(result.user);
-      setLoggedIn(true);
-    } catch (error) {
-      console.error("Pi Login failed", error);
+      window.Pi.authenticate(['username'], function (auth) {
+        if (auth && auth.user) {
+          onLoginSuccess(auth.user);
+          onClose();
+        } else {
+          setError("❌ Login failed. Please try again.");
+        }
+      });
+    } catch (err) {
+      setError("❌ Unexpected error: " + err.message);
     }
   };
 
-  const handleLogout = () => {
-    setLoggedIn(false);
-    setUser(null);
-  };
-
-  const onIncompletePaymentFound = (payment) => {
-    console.log("Found incomplete payment:", payment);
-  };
-
   return (
-    <div className="mt-4">
-      {loggedIn ? (
-        <div className="text-sm text-gray-700">
-          👋 Hello, <strong>{user?.username}</strong>
-          <button
-            onClick={handleLogout}
-            className="ml-4 text-red-500 underline hover:text-red-700"
-          >
-            Logout
-          </button>
-        </div>
-      ) : (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-80 shadow-lg text-center">
+        <h2 className="text-xl font-bold mb-4">🔐 Login with Pi</h2>
         <button
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mb-3"
           onClick={handleLogin}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition"
         >
-          Login with Pi
+          Authenticate
         </button>
-      )}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+        <button onClick={onClose} className="mt-4 text-sm text-gray-500 hover:underline">
+          Close
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default LoginPopup;
