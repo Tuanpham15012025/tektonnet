@@ -2,22 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="TektonNet - Smart construction DApp on Pi Network"
-    />
+    <meta name="theme-color" content="#4B0082" />
+    <meta name="description" content="TektonNet - Smart Construction DApp powered by Pi Network and AI." />
+    <meta name="keywords" content="TektonNet, Pi Network, Construction App, AI, DApp, Smart Construction, Pi SDK" />
+    <meta name="author" content="TektonNet Team" />
+
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>TektonNet</title>
+
+    <title>TektonNet – AI Construction App on Pi Network</title>
   </head>
+
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
-    <!-- Pi SDK for sandbox environment -->
-    <script src="https://sdk.minepi.com/pi-sdk.js?version=2.0.0&env=sandbox"></script>
+    <!-- Pi SDK v2 will be injected automatically in Pi Browser -->
+    <script>
+      console.log("Pi SDK available?", typeof window.Pi !== "undefined");
+      if (!window.Pi) {
+        console.warn("⚠️ Pi SDK not found. Make sure you open this in Pi Browser.");
+      }
+    </script>
   </body>
 </html>
