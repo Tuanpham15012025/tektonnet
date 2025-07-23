@@ -5,28 +5,31 @@ function HomePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loginWithPi = async () => {
+    const initPiSDK = async () => {
       if (!window.Pi) {
-        setError("❌ Pi SDK không khả dụng. Hãy mở ứng dụng trong Pi Browser.");
+        setError("❌ Pi SDK không khả dụng. Vui lòng mở trong Pi Browser.");
         return;
       }
 
       try {
-        const scopes = ['username', 'payments'];
+        // ✅ BƯỚC 1: Khởi tạo SDK
+        window.Pi.init({ version: 2 });
 
+        // ✅ BƯỚC 2: Xác thực người dùng
+        const scopes = ['username', 'payments'];
         const authResult = await window.Pi.authenticate(scopes, (payment) => {
-          console.log("🔁 Incomplete payment:", payment);
+          console.log("🔁 Payment pending:", payment);
         });
 
-        console.log("✅ Pi Auth Result:", authResult);
+        console.log("✅ Pi Auth Success:", authResult);
         setUsername(authResult.user.username);
       } catch (err) {
-        console.error("❌ Lỗi đăng nhập:", err);
+        console.error("❌ Auth Error:", err);
         setError("Lỗi đăng nhập: " + err.message);
       }
     };
 
-    loginWithPi();
+    initPiSDK();
   }, []);
 
   return (
@@ -34,7 +37,7 @@ function HomePage() {
       <h1>🔐 Đăng nhập Pi Network</h1>
 
       {username ? (
-        <p>👋 Xin chào, <strong>{username}</strong>! Bạn đã đăng nhập thành công với Pi.</p>
+        <p>👋 Xin chào, <strong>{username}</strong>! Bạn đã đăng nhập thành công.</p>
       ) : error ? (
         <p style={{ color: "red" }}>{error}</p>
       ) : (
