@@ -1,61 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const LoginWithPi = () => {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
+  const [loginError, setLoginError] = useState(null);
+
+  useEffect(() => {
+    if (window.Pi) {
+      window.Pi.init({ version: "2.0", sandbox: true })
+        .then(() => {
+          console.log("✅ Pi SDK initialized");
+        })
+        .catch((err) => {
+          console.error("Pi.init() failed:", err);
+        });
+    } else {
+      console.warn("⚠️ Pi SDK not found. Please open this app inside the Pi Browser.");
+    }
+  }, []);
 
   const handleLogin = async () => {
-    if (!window.Pi) {
-      alert("⚠️ Vui lòng mở app trong Pi Browser.");
-      return;
-    }
-
     try {
-      // ✅ Init SDK trước khi sử dụng bất kỳ method nào
-      await window.Pi.init({ version: 2 }); // nếu bạn dùng sandbox thì thêm environment: "sandbox"
+      if (!window.Pi) throw new Error("Pi SDK not available");
 
-      // Sau khi init, mới được authenticate
-      window.Pi.authenticate(['username', 'payments'], (auth) => {
-        if (auth?.user) {
-          console.log("✅ Logged in:", auth.user);
-          setUser(auth.user);
-        } else {
-          setError("Login failed. Please try again.");
-        }
-      });
-    } catch (e) {
-      console.error("❌ Error during Pi.init or login:", e);
-      setError("Initialization or login failed.");
+      const scopes = ['username', 'payments'];
+      const auth = await window.Pi.authenticate(scopes);
+
+      console.log("✅ Login success:", auth.user);
+      setUserInfo(auth.user);
+    } catch (error) {
+      console.error("❌ Login failed:", error);
+      setLoginError("Initialization or login failed.");
     }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setError("");
-    alert("✅ Logged out.");
   };
 
   return (
-    <div className="text-center mt-3">
-      {user ? (
-        <>
-          <p className="text-green-600 font-semibold mb-1">✅ Welcome, @{user.username}</p>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Logout
-          </button>
-        </>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
+      <h1 className="text-2xl font-bold mb-4 text-center">Login with Pi</h1>
+
+      {userInfo ? (
+        <div className="p-4 bg-white rounded-xl shadow-md text-center">
+          <p className="mb-2">✅ Đăng nhập thành công!</p>
+          <p><strong>Pi Username:</strong> {userInfo.username}</p>
+          <p><strong>UID:</strong> {userInfo.uid}</p>
+        </div>
       ) : (
         <button
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded"
           onClick={handleLogin}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
         >
-          Login with Pi
+          Đăng nhập với Pi
         </button>
       )}
-      {error && <p className="mt-2 text-red-500">{error}</p>}
+
+      {loginError && (
+        <p className="mt-4 text-red-600 font-semibold">{loginError}</p>
+      )}
     </div>
   );
 };
